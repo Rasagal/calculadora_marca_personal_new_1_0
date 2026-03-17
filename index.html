@@ -978,39 +978,75 @@ function closeModal() {
             const radarCanvas = document.getElementById('radarChart');
             document.getElementById('radar-img-print').src = radarCanvas.toDataURL('image/png');
 
-            // 2. GENERACIÓN DINÁMICA DE CONTENIDO DETALLADO (PÁGINAS 2 Y 3)
+            // 2. GENERACIÓN DINÁMICA DE CONTENIDO DETALLADO (PÁGINAS 1, 2 Y 3)
             const values = ids.map((id, idx) => ({ id, name: vars[idx].name, icon: vars[idx].icon, val: parseInt(document.getElementById(id + '-num').value) || 0 }));
             
-            // Fortalezas (Página 2)
+            // --- NUEVO: CALCULAR ARQUETIPO (Para llenar la Página 1) ---
+            let highest = values.reduce((max, obj) => (obj.val > max.val ? obj : max), values[0]);
+            let arquetipo = ""; let descArquetipo = "";
+            
+            switch(highest.id) {
+                case 'exp': arquetipo = "El Referente Veterano"; descArquetipo = "Destacas por tu profundo conocimiento y trayectoria. Tu reto es hacer que esa experiencia sea visible para el mercado y capitalizarla como autoridad."; break;
+                case 'form': arquetipo = "El Experto Académico"; descArquetipo = "Tienes una base teórica inmejorable. Eres el perfil ideal para investigar y aportar datos sólidos, aunque debes vigilar pasar a la acción y visibilizarte."; break;
+                case 'hab': arquetipo = "El Líder Carismático"; descArquetipo = "Tus habilidades blandas son tu mayor activo. Conectas bien con la gente y sabes comunicar. Aprovecha este don para liderar e influir en tu sector."; break;
+                case 'eje': arquetipo = "El Ejecutor Implacable"; descArquetipo = "Eres una persona de acción. Mientras otros planean, tú ya estás obteniendo resultados. Asegúrate de comunicar tus logros, no solo trabajar en la sombra."; break;
+                case 'net': arquetipo = "El Conector Estratégico"; descArquetipo = "Tu red de contactos es tu superpoder. Conoces a las personas adecuadas. Tu objetivo debe ser posicionarte como el nodo central de tu industria."; break;
+                case 'cir': arquetipo = "El Oportunista Inteligente"; descArquetipo = "Sabes leer el entorno y adaptarte a las circunstancias. Tienes buena visión panorámica para saber cuándo y dónde invertir tu energía profesional."; break;
+                case 'mer': arquetipo = "El Visionario del Mercado"; descArquetipo = "Entiendes perfectamente lo que demanda tu industria hoy. Tienes un perfil altamente comercial y orientado a resolver necesidades reales."; break;
+                case 'hue': arquetipo = "El Creador Digital"; descArquetipo = "Dominas el entorno online y sabes cómo proyectar tu imagen en internet. Tienes el altavoz perfecto para amplificar cualquier proyecto que inicies."; break;
+                default: arquetipo = "Perfil Multipotencial"; descArquetipo = "Muestras un balance muy equilibrado en todas las áreas. Eres versátil y adaptable. Tu siguiente paso es elegir un nicho donde enfocar tanta energía.";
+            }
+            document.getElementById('arquetipo-titulo').innerText = arquetipo;
+            document.getElementById('arquetipo-desc').innerText = descArquetipo;
+
+            // --- FORTALEZAS Y DEBILIDADES (Para la Página 2) ---
             const fuertes = values.filter(v => v.val >= 7).sort((a,b) => b.val - a.val);
             const contenedorFuertes = document.getElementById('analisis-fortalezas');
             if(fuertes.length > 0) {
                 contenedorFuertes.innerHTML = fuertes.map(f => `
-                    <div style="background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 5px solid #22c55e;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h3 style="margin: 0; font-size: 18px; color: #1a2b4a;">${f.icon} ${f.name}</h3>
-                            <span style="background: #f0fdf4; color: #16a34a; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${f.val}/10</span>
+                    <div style="background: white; border-radius: 15px; padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 5px solid #22c55e;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <h3 style="margin: 0; font-size: 16px; color: #1a2b4a;">${f.icon} ${f.name}</h3>
+                            <span style="background: #f0fdf4; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">${f.val}/10</span>
                         </div>
-                        <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">Tu puntuación indica un dominio avanzado en esta área. Es un pilar fundamental de tu marca personal sobre el que debes seguir apalancándote para destacar en el sector de ${sector}.</p>
+                        <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">Es un pilar fundamental de tu marca personal sobre el que debes seguir apalancándote.</p>
                     </div>
                 `).join('');
             } else {
-                contenedorFuertes.innerHTML = '<p style="color: #64748b;">Aún no hay áreas de poder consolidadas (>7). ¡Sigue trabajando en tu plan de acción!</p>';
+                contenedorFuertes.innerHTML = '<p style="color: #64748b; font-size: 13px;">Aún no hay áreas de poder consolidadas (>7). Sigue trabajando en tu plan de acción.</p>';
             }
 
-            // Plan de Acción Expandido (Página 3)
+            const debiles = values.filter(v => v.val <= 5).sort((a,b) => a.val - b.val);
+            const contenedorDebiles = document.getElementById('analisis-debiles');
+            if(debiles.length > 0) {
+                contenedorDebiles.innerHTML = debiles.map(d => `
+                    <div style="background: white; border-radius: 15px; padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 5px solid #ef4444;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <h3 style="margin: 0; font-size: 16px; color: #1a2b4a;">${d.icon} ${d.name}</h3>
+                            <span style="background: #fef2f2; color: #dc2626; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">${d.val}/10</span>
+                        </div>
+                        <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">Atención inmediata requerida. Esta área puede estar frenando el potencial de tus fortalezas.</p>
+                    </div>
+                `).join('');
+            } else {
+                contenedorDebiles.innerHTML = '<p style="color: #64748b; font-size: 13px;">¡Excelente! No presentas áreas con debilidades críticas. Concéntrate en mantener el equilibrio.</p>';
+            }
+
+            // --- PLAN DE ACCIÓN (Para la Página 3) ---
             const sortedRecs = [...values].sort((a,b) => a.val - b.val).slice(0, 4);
             const contenedorPlan = document.getElementById('analisis-plan');
             contenedorPlan.innerHTML = sortedRecs.map((r, index) => {
                 let nivel = r.val <= 4 ? 'bajo' : r.val <= 7 ? 'medio' : 'alto';
                 return `
-                    <div style="background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; gap: 20px;">
-                        <div style="font-size: 40px; color: #e2e8f0; font-weight: 800; font-family: 'Montserrat'; line-height: 1;">0${index+1}</div>
-                        <div>
-                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #4472c4; text-transform: uppercase;">MEJORAR: ${r.name}</h3>
-                            <p style="margin: 0; font-size: 14px; color: #1a2b4a; font-weight: 600; margin-bottom: 10px;">Diagnóstico: Nivel ${nivel.toUpperCase()}</p>
-                            <div style="background: #f8faff; padding: 15px; border-radius: 10px; font-size: 13px; color: #334155; line-height: 1.6; border: 1px solid #eef2f6;">
-                                <strong>Consejo Estratégico:</strong> ${REC_DATABASE[r.id][nivel].text}
+                    <div style="background: white; border-radius: 15px; padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; gap: 20px;">
+                        <div style="font-size: 35px; color: #e2e8f0; font-weight: 800; font-family: 'Montserrat'; line-height: 1;">0${index+1}</div>
+                        <div style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <h3 style="margin: 0; font-size: 15px; color: #4472c4; text-transform: uppercase;">ACCIONAR: ${r.name}</h3>
+                                <span style="font-size: 11px; background: #f1f5f9; padding: 3px 10px; border-radius: 10px; color: #64748b;">Nivel ${nivel.toUpperCase()}</span>
+                            </div>
+                            <div style="background: #f8faff; padding: 12px; border-radius: 10px; font-size: 13px; color: #334155; line-height: 1.5; border: 1px solid #eef2f6;">
+                                <strong>Consejo:</strong> ${REC_DATABASE[r.id][nivel].text}
                             </div>
                         </div>
                     </div>
@@ -1081,36 +1117,45 @@ function closeModal() {
         <div id="contenedor-impresion" style="position: absolute; left: -9999px; top: 0; display: flex; flex-direction: column; gap: 50px;">
     
             <div class="pdf-page" style="width: 210mm; height: 297mm; background: #f1f5f9; font-family: 'Inter', sans-serif; position: relative; box-sizing: border-box; overflow: hidden;">
-                
-                <div style="background: white; padding: 50px 50px 30px 50px; text-align: center; border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                    <img class="logo-impresion" src="" style="max-height: 90px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
-                    <h1 style="margin: 0; font-family: 'Montserrat'; font-size: 26px; font-weight: 800; color: #1a2b4a; letter-spacing: -0.5px;">INFORME DE AUDITORÍA</h1>
-                    <p style="margin: 5px 0 0 0; font-size: 18px; color: #4472c4; font-weight: 600;">Marca Personal</p>
+        
+                <div style="background: white; padding: 40px 50px 25px 50px; text-align: center; border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                    <img class="logo-impresion" src="" style="max-height: 60px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
+                    <h1 style="margin: 0; font-family: 'Montserrat'; font-size: 24px; font-weight: 800; color: #1a2b4a; letter-spacing: -0.5px;">INFORME DE AUDITORÍA</h1>
+                    <p style="margin: 5px 0 0 0; font-size: 16px; color: #4472c4; font-weight: 600;">Marca Personal</p>
                 </div>
 
-                <div style="padding: 40px 50px;">
-                    <div style="background: white; border-radius: 20px; padding: 25px 35px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 30px;">
-                        <p style="margin: 0 0 15px 0; font-size: 11px; font-weight: 800; color: #4472c4; letter-spacing: 1px;">1. DATOS DEL PROFESIONAL</p>
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                            <p style="margin: 0; font-size: 16px;"><strong>Nombre:</strong> <span id="nombre-print" style="color: #1a2b4a;"></span></p>
-                            <p style="margin: 0; font-size: 16px;"><strong>Sector:</strong> <span id="sector-print" style="color: #1a2b4a;"></span></p>
-                            <p style="margin: 0; font-size: 16px;"><strong>Nivel Actual:</strong> <span id="resultado-label-print" style="font-weight: 700; color: #2563eb;"></span></p>
+                <div style="padding: 30px 50px;">
+                    <div style="background: white; border-radius: 20px; padding: 20px 30px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin: 0; font-size: 13px; color: #64748b;">Profesional Evaluado</p>
+                            <p style="margin: 2px 0 0 0; font-size: 18px; font-weight: bold; color: #1a2b4a;" id="nombre-print"></p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 13px; color: #64748b;">Sector Competitivo</p>
+                            <p style="margin: 2px 0 0 0; font-size: 16px; font-weight: 600; color: #4472c4;" id="sector-print"></p>
                         </div>
                     </div>
 
-                    <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); display: flex; gap: 40px; align-items: center;">
-                        <div style="flex: 1; text-align: center; border-right: 1px solid #f1f5f9; padding-right: 40px;">
+                    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); display: flex; gap: 30px; align-items: center; margin-bottom: 25px;">
+                        <div style="flex: 1; text-align: center; border-right: 1px solid #f1f5f9; padding-right: 30px;">
                             <p style="margin: 0; font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 1px;">SCORE GLOBAL</p>
-                            <h2 style="font-size: 90px; margin: 10px 0; color: #2563eb; font-family: 'Montserrat'; line-height: 1;"><span id="score-print"></span><span style="font-size: 24px; color: #cbd5e1;">/10</span></h2>
-                            <p id="pts-print" style="margin: 0; font-size: 15px; font-weight: 700; color: #64748b;"></p>
+                            <h2 style="font-size: 80px; margin: 5px 0; color: #2563eb; font-family: 'Montserrat'; line-height: 1;"><span id="score-print"></span><span style="font-size: 20px; color: #cbd5e1;">/10</span></h2>
+                            <p id="resultado-label-print" style="margin: 0; font-size: 14px; font-weight: 700; color: #1a2b4a; text-transform: uppercase;"></p>
+                            <p id="pts-print" style="margin: 5px 0 0 0; font-size: 12px; color: #94a3b8;"></p>
                         </div>
                         <div style="flex: 1.2; text-align: center;">
-                            <img id="radar-img-print" src="" style="width: 100%; max-width: 280px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));">
+                            <img id="radar-img-print" src="" style="width: 100%; max-width: 260px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));">
                         </div>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #f8faff 0%, #e0e8f9 100%); border-radius: 20px; padding: 25px 30px; border: 1px solid #dbeafe;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 800; color: #4472c4; text-transform: uppercase; letter-spacing: 1px;">Perfil Identificado</h3>
+                        <p id="arquetipo-titulo" style="margin: 0 0 10px 0; font-size: 20px; font-weight: 800; color: #1a2b4a; font-family: 'Montserrat';"></p>
+                        <p id="arquetipo-desc" style="margin: 0; font-size: 13px; color: #475569; line-height: 1.6;"></p>
                     </div>
                 </div>
 
-                <div style="position: absolute; bottom: 0; width: 100%; padding: 25px 50px; background: white; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; box-sizing: border-box;">
+                <div style="position: absolute; bottom: 0; width: 100%; padding: 20px 50px; background: white; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; box-sizing: border-box;">
                     <span class="fecha-print"></span>
                     <span>Confidencial | Página 1 de 3</span>
                 </div>
@@ -1118,18 +1163,27 @@ function closeModal() {
 
             <div class="pdf-page" style="width: 210mm; height: 297mm; background: #f1f5f9; font-family: 'Inter', sans-serif; position: relative; box-sizing: border-box; overflow: hidden;">
                 
-                <div style="background: white; padding: 25px 50px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center;">
-                    <img class="logo-impresion" src="" style="height: 50px;"> 
+                <div style="background: white; padding: 20px 50px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center;">
+                    <img class="logo-impresion" src="" style="height: 30px;"> 
                 </div>
 
-                <div style="padding: 40px 50px;">
-                    <h2 style="font-family: 'Montserrat'; font-size: 24px; color: #1a2b4a; margin-top: 0;">2. Análisis de Fortalezas</h2>
-                    <p style="color: #64748b; font-size: 14px; margin-bottom: 30px; line-height: 1.6;">Estas son las áreas donde tu perfil destaca actualmente. Representan tu ventaja competitiva en el mercado y los pilares sobre los que debes construir tu autoridad.</p>
-                    
-                    <div id="analisis-fortalezas"></div>
+                <div style="padding: 30px 50px;">
+                    <div style="display: flex; gap: 30px;">
+                        <div style="flex: 1;">
+                            <h2 style="font-family: 'Montserrat'; font-size: 20px; color: #16a34a; margin-top: 0; border-bottom: 2px solid #dcfce7; padding-bottom: 10px;">2.1 Áreas de Poder</h2>
+                            <p style="color: #64748b; font-size: 12px; margin-bottom: 20px;">Tus ventajas competitivas en el mercado actual.</p>
+                            <div id="analisis-fortalezas"></div>
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <h2 style="font-family: 'Montserrat'; font-size: 20px; color: #dc2626; margin-top: 0; border-bottom: 2px solid #fee2e2; padding-bottom: 10px;">2.2 Áreas de Mejora</h2>
+                            <p style="color: #64748b; font-size: 12px; margin-bottom: 20px;">Fricciones que limitan tu crecimiento profesional.</p>
+                            <div id="analisis-debiles"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="position: absolute; bottom: 0; width: 100%; padding: 25px 50px; background: white; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; box-sizing: border-box;">
+                <div style="position: absolute; bottom: 0; width: 100%; padding: 20px 50px; background: white; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; box-sizing: border-box;">
                     <span class="fecha-print"></span>
                     <span>Confidencial | Página 2 de 3</span>
                 </div>
@@ -1137,23 +1191,27 @@ function closeModal() {
 
             <div class="pdf-page" style="width: 210mm; height: 297mm; background: #f1f5f9; font-family: 'Inter', sans-serif; position: relative; box-sizing: border-box; overflow: hidden;">
                 
-                <div style="background: white; padding: 25px 50px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center;">
-                    <img class="logo-impresion" src="" style="height: 50px;"> 
+                <div style="background: white; padding: 20px 50px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center;">
+                    <img class="logo-impresion" src="" style="height: 30px;"> 
                 </div>
 
-                <div style="padding: 40px 50px;">
-                    <h2 style="font-family: 'Montserrat'; font-size: 24px; color: #1a2b4a; margin-top: 0;">3. Tu Plan de Acción</h2>
-                    <p style="color: #64748b; font-size: 14px; margin-bottom: 30px; line-height: 1.6;">Para elevar tu marca personal al siguiente nivel, hemos detectado áreas críticas de mejora. Sigue estos consejos estratégicos durante los próximos meses.</p>
+                <div style="padding: 30px 50px;">
+                    <h2 style="font-family: 'Montserrat'; font-size: 22px; color: #1a2b4a; margin-top: 0;">3. Tu Plan de Acción Estratégico</h2>
+                    <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Ejecuta estas acciones prioritarias para equilibrar tu perfil.</p>
                     
                     <div id="analisis-plan"></div>
+
+                    <div style="background: linear-gradient(135deg, #1a2b4a 0%, #2563eb 100%); border-radius: 20px; padding: 25px 30px; margin-top: 25px; color: white; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);">
+                        <h3 style="margin: 0 0 10px 0; font-size: 16px; font-family: 'Montserrat';">💡 Siguientes Pasos Reales</h3>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.6;">Desarrollar una marca personal es una maratón. Te recomendamos elegir <strong>una sola acción de este plan por semana</strong>. Revisa tus progresos en 90 días para ver resultados tangibles en tu posicionamiento dentro del sector.</p>
+                    </div>
                 </div>
 
-                <div style="position: absolute; bottom: 0; width: 100%; padding: 25px 50px; background: #1a2b4a; color: white; display: flex; justify-content: space-between; font-size: 10px; box-sizing: border-box;">
+                <div style="position: absolute; bottom: 0; width: 100%; padding: 20px 50px; background: #1a2b4a; color: white; display: flex; justify-content: space-between; font-size: 10px; box-sizing: border-box;">
                     <span>www.retorika.es</span>
                     <span>Confidencial | Página 3 de 3</span>
                 </div>
             </div>
-
         </div>
 </body>
 </html>
